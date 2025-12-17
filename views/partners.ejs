@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Partner Application - EscapeCalifornia</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background:#f5f5f5; }
+    .card { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 8px rgba(0,0,0,0.1); max-width:760px; }
+    label { display:block; margin-top:12px; font-weight:bold; }
+    input, select, textarea { width:100%; padding:8px; margin-top:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; }
+    button { margin-top:16px; padding:10px 14px; border:none; border-radius:4px; cursor:pointer; background:#111; color:#fff; }
+    .hint { color:#666; font-size:0.9rem; margin-top:4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Partner Application</h1>
+    <p class="hint">Apply to be a referral partner (realtor, relocation consultant, EDC rep, etc.).</p>
+
+    <form method="POST" action="/partners/apply">
+      <label>Your Name *</label>
+      <input name="name" required />
+
+      <label>Email *</label>
+      <input name="email" type="email" required />
+
+      <label>Phone</label>
+      <input name="phone" />
+
+      <label>Partner Type *</label>
+      <select name="partner_type" required>
+        <option value="">Select…</option>
+        <option value="relocation_consultant">Relocation Consultant</option>
+        <option value="realtor">Realtor</option>
+        <option value="edc_rep">EDC Representative</option>
+        <option value="moving_company">Moving Company</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Company</label>
+      <input name="company" />
+
+      <label>Website</label>
+      <input name="website" placeholder="https://example.com" />
+
+      <label>Service Areas</label>
+      <input name="service_areas" placeholder="e.g., Fresno, Clovis, Madera…" />
+
+      <label>Message</label>
+      <textarea name="message" rows="4" placeholder="Tell us what you do and where you serve."></textarea>
+
+      <button type="submit">Submit Application</button>
+    </form>
+
+    <p class="hint" style="margin-top:16px;">
+      <a href="/switchboard">Back to Switchboard</a>
+    </p>
+  </div>
+</body>
+</html>

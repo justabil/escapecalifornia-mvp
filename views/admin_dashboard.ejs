@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EscapeCalifornia Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background:#f6f7fb; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+    h1 { margin:0; font-size: 1.4rem; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#e9eefc; color:#1b3a8a; font-size:12px; }
+    .btn {
+      display:inline-block; padding:8px 12px; border-radius:6px; border:1px solid #c7cbe0;
+      background:#fff; cursor:pointer; text-decoration:none; color:#1a1a1a;
+    }
+    .btn-primary { background:#1976d2; border-color:#1976d2; color:#fff; }
+    .layout { display:grid; grid-template-columns: 1fr; gap:14px; }
+    .card { background:#fff; border-radius:10px; box-shadow:0 1px 6px rgba(0,0,0,0.08); padding:14px; }
+    .muted { color:#666; font-size: 0.95rem; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #eee; vertical-align: top; }
+    th { font-size: 12px; letter-spacing: .02em; text-transform: uppercase; color:#555; }
+    .nowrap { white-space: nowrap; }
+    .empty { padding:12px; border:1px dashed #cfd3ea; border-radius:8px; background:#fbfbff; }
+    form.inline { display:inline; }
+    .top-actions { display:flex; gap:10px; align-items:center; }
+    code { background:#f1f2f6; padding:2px 5px; border-radius:4px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Admin Dashboard</h1>
+      <div class="muted">EscapeCalifornia MVP</div>
+    </div>
+
+    <div class="top-actions">
+      <span class="pill">Signed in</span>
+
+      <!-- Logout -->
+      <form class="inline" method="POST" action="/admin/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn" type="submit">Log out</button>
+      </form>
+
+      <a class="btn btn-primary" href="/">View Site</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="card">
+      <h2 style="margin:0 0 6px 0; font-size:1.1rem;">Recent Leads</h2>
+      <div class="muted">Showing newest first.</div>
+
+      <% if (!leads || leads.length === 0) { %>
+        <div class="empty" style="margin-top:10px;">
+          No leads found yet.
+          <div class="muted" style="margin-top:6px;">
+            When someone submits the lead form, you’ll see them here.
+          </div>
+        </div>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th class="nowrap">Created</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Type</th>
+              <th>State</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% leads.forEach(l => { %>
+              <tr>
+                <td class="nowrap">
+                  <%= l.created_at ? new Date(l.created_at).toLocaleString() : '' %>
+                </td>
+                <td><%= l.name || '' %></td>
+                <td><%= l.email || '' %></td>
+                <td><%= l.client_type || l.type || '' %></td>
+                <td><%= l.destination_state || l.state || '' %></td>
+                <td><%= l.notes || '' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+        <div class="muted" style="margin-top:10px;">
+          Tip: If your column names differ, adjust the fields in <code>admin_dashboard.ejs</code> to match your <code>relocation_leads</code> table.
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+</body>
+</html>

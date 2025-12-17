@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Relocation Interest – EscapeCalifornia.com</title>
+  <meta charset="UTF-8" />
+</head>
+<body>
+  <header>
+    <h1>Relocation Interest Form</h1>
+    <nav>
+      <a href="/">Home</a> |
+      <a href="/about">About</a>
+	<a href="/switchboard">SwitchBoard</a>
+    </nav>
+  </header>
+
+  <main>
+    <form method="POST" action="/relocation-interest">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Name:<br />
+        <input type="text" name="name" required />
+      </label>
+      <br /><br />
+
+      <label>
+        Email:<br />
+        <input type="email" name="email" required />
+      </label>
+      <br /><br />
+
+      <label>
+        You are a:<br />
+        <select name="type">
+          <option value="individual">Individual</option>
+          <option value="family">Family</option>
+          <option value="business">Business</option>
+        </select>
+      </label>
+      <br /><br />
+
+      <label>
+        Rough timeline:<br />
+        <select name="timeline">
+          <option value="0-6">0–6 months</option>
+          <option value="6-12">6–12 months</option>
+          <option value="curious">Just curious for now</option>
+        </select>
+      </label>
+      <br /><br />
+
+      <label>
+        Where are you thinking of going?<br />
+        <input type="text" name="destination_ideas" />
+      </label>
+      <br /><br />
+
+      <label>
+        Biggest concern about leaving California:<br />
+        <textarea name="concern" rows="4" cols="40"></textarea>
+      </label>
+      <br /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>Admin – Relocation Leads</title>
+
+</head>
+
+<body>
+
+  <h1>Relocation Leads (Admin)</h1>
+
+
+
+  <% if (!leads || leads.length === 0) { %>
+
+    <p>No leads yet.</p>
+
+  <% } else { %>
+
+    <table border="1" cellpadding="4" cellspacing="0">
+
+      <thead>
+
+        <tr>
+
+          <th>ID</th>
+
+          <th>Created</th>
+
+          <th>Name</th>
+
+          <th>Email</th>
+
+          <th>Type</th>
+
+          <th>Timeline</th>
+
+          <th>Destination ideas</th>
+
+          <th>Concern</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <% relocation_leads.forEach(function(lead) { %>
+
+          <tr>
+
+            <td><%= relocation_leads.id %></td>
+
+            <td><%= relocation_leads.created_at %></td>
+
+            <td><%= relocation_leads.name %></td>
+
+            <td><%= relocation_leads.email %></td>
+
+            <td><%= relocation_leads.type %></td>
+
+            <td><%= relocation_leads.timeline %></td>
+
+            <td><%= relocation_leads.destination_ideas %></td>
+
+            <td><%= relocation_leads.concern %></td>
+
+          </tr>
+
+        <% }); %>
+
+      </tbody>
+
+    </table>
+
+  <% } %>
+
+
+
+  <p><a href="/">Back to home</a></p>
+
+</body>
+
+</html>
+

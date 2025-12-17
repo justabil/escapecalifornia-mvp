@@ -1,0 +1,134 @@
+<%- include('partials/header', { title: 'EscapeCalifornia – Rethink Where You Live & Work' }) %>
+
+<header class="top-nav">
+  <% if (!isAdmin) { %>
+    <a href="/admin/login" class="admin-link">Admin Sign In</a>
+  <% } else { %>
+    <a href="/admin" class="admin-link">Admin Dashboard</a>
+  <% } %>
+</header>
+
+<!-- Brand Banner -->
+<section style="text-align: center; padding: 1.5rem 0 0.5rem;">
+  <h1 style="
+      margin: 0;
+      font-size: clamp(2.6rem, 4vw + 1rem, 3.5rem);
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.5px;
+  ">
+    EscapeCalifornia
+  </h1>
+  <p style="margin: 0.3rem 0 0; font-size: 1rem; color: var(--text-muted);">
+    Make your next move with clarity, confidence, and real information.
+  </p>
+</section>
+
+<section class="hero">
+  <div>
+    <div class="hero-badges">
+      <div class="badge">Private inquiry • No spam</div>
+      <div class="badge">Early access MVP</div>
+    </div>
+
+    <h2 class="hero-heading" style="margin-top: 0.5rem;">
+      Considering leaving <span>California</span>?<br />
+      Get clarity before you pack a box.
+    </h2>
+
+    <p class="hero-subtitle">
+      EscapeCalifornia.com is a simple intake portal that helps you explore
+      relocation options, cost of living trade-offs, and quality-of-life
+      changes—without endless doom-scrolling or sales calls.
+    </p>
+
+    <div class="hero-actions">
+      <a href="/lead">
+        <button class="btn-primary">
+          Start a confidential inquiry
+        </button>
+      </a>
+      <a href="#how">
+        <button class="btn-ghost">
+          How does this work?
+        </button>
+      </a>
+    </div>
+
+    <p class="hero-note">
+      No commitment, no public listing. Just a short form that helps us understand your situation.
+    </p>
+  </div>
+
+  <aside>
+    <!-- California Headlines Widget -->
+    <div class="hero-card" style="margin-bottom: 1rem;">
+      <div class="hero-card-title">California Headlines</div>
+      <% if (typeof newsItems !== 'undefined' && newsItems && newsItems.length) { %>
+        <ul class="hero-card-list">
+          <% newsItems.slice(0, 3).forEach(function(item) { %>
+            <li>
+              <div class="hero-dot"></div>
+              <div>
+                <div style="font-size: 0.86rem; font-weight: 500;">
+                  <% if (item.url) { %>
+                    <a href="<%= item.url %>" target="_blank" rel="noopener noreferrer">
+                      <%= item.title %>
+                    </a>
+                  <% } else { %>
+                    <%= item.title %>
+                  <% } %>
+                </div>
+                <% if (item.source || item.publishedAt) { %>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                    <%= item.source || '' %>
+                    <% if (item.source && item.publishedAt) { %> • <% } %>
+                    <%= item.publishedAt || '' %>
+                  </div>
+                <% } %>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+        <div class="hero-card-footer">
+          <span>Updated regularly</span>
+          <span><a href="/news" style="font-size: 0.8rem;">View more</a></span>
+        </div>
+      <% } else { %>
+        <p style="font-size: 0.86rem; color: var(--text-muted); margin: 0 0 0.75rem;">
+          We’re curating recent headlines about California’s economy, policy changes,
+          crime, and quality-of-life trends. Check back soon for live updates.
+        </p>
+        <div class="hero-card-footer">
+          <span>External sources</span>
+          <span>Not personalized advice</span>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- What We'll Ask You -->
+    <div class="hero-card">
+      <div class="hero-card-title">What we’ll ask you about</div>
+      <ul class="hero-card-list">
+        <li>
+          <div class="hero-dot"></div>
+          <div>
+            Your current situation: household, work, or business constraints in California.
+          </div>
+        </li>
+        <li>
+          <div class="hero-dot"></div>
+          <div>
+            Your priorities: lower taxes, housing costs, regulations, schools, or lifestyle.
+          </div>
+        </li>
+        <li>
+          <div class="hero-dot"></div>
+          <div>
+            Your timeline: “just curious”, “12–24 months”, or “actively planning”.
+          </div>
+        </li>
+        <li>
+          <div class="hero-dot"></div>
+          <div>
+            Your p
