@@ -19,7 +19,7 @@ router.get('/leads.csv', requireAdmin, admin.exportLeadsCsv);
 // A2: Update admin notes (uses relocation_leads.admin_notes)
 router.post('/leads/:id/notes', requireAdmin, admin.updateLeadNotes);
 
-router.post('/partner-invite', requireAdmin, admin.sendPartnerInvite);
+router.post('/partner-invite', requireAdmin, admin.sendPartnerInvite);client_type
 
 
 
