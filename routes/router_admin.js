@@ -9,6 +9,8 @@ router.get('/login', admin.showLogin);
 router.post('/login', admin.doLogin);
 router.post('/logout', requireAdmin, admin.logout);
 
+router.get('/leads.csv', requireAdmin, admin.exportLeadsCsv);
 router.get('/', requireAdmin, admin.dashboard);
+
 
 module.exports = router;
