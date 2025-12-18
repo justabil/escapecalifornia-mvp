@@ -79,18 +79,22 @@ console.log('SMTP_USER =', process.env.SMTP_USER);
 
 
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'EscapeCalifornia Partner Invitation',
-      text:
+    const from = process.env.EMAIL_FROM;
+
+await transporter.sendMail({
+  from,                 // Header From
+  envelope: { from },   // SMTP MAIL FROM (what SES checks)
+  to: email,
+  subject: 'EscapeCalifornia Partner Invitation',
+  text:
 `You’ve been invited to join EscapeCalifornia as a partner.
 
 Create your partner account here:
 ${inviteUrl}
 
 This link expires in ${days} days.`
-    });
+});
+
 
     return res.redirect('/admin');
   } catch (err) {
