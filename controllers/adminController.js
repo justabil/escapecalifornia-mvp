@@ -78,10 +78,14 @@ exports.exportLeadsCsv = async (req, res) => {
     const csv = lines.join('\r\n');
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename="relocation_leads.csv"'
-    );
+const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+res.setHeader(
+  'Content-Disposition',
+  `attachment; filename="relocation_leads_${ts}.csv"`
+);
+
+
+
 
     res.status(200).send(csv);
   } catch (err) {
