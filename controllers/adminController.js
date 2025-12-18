@@ -40,12 +40,11 @@ exports.dashboard = async (req, res) => {
 exports.exportLeadsCsv = async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT id, created_at, name, email, client_type, destination_state, notes
-      FROM relocation_leads
-      ORDER BY created_at DESC
-      LIMIT 5000
-    `);
-
+  SELECT *
+  FROM relocation_leads
+  ORDER BY created_at DESC
+  LIMIT 5000
+`);
     const esc = (v) => {
       if (v === null || v === undefined) return '';
       const s = String(v);
