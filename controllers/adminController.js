@@ -46,27 +46,26 @@ exports.dashboard = async (req, res) => {
     const colSet = new Set(cols.map((c) => c.Field));
 
     // A4: Stats + Top destination states (only if columns exist)
-    let stats = null;
-    let topStates = [];
+    let topDestinations = [];
 
-    if (colSet.has('created_at')) {
-      const [[s]] = await pool.query(`
-        SELECT
-          SUM(created_at >= CURDATE()) AS today,
-          SUM(created_at >= CURDATE() - INTERVAL 7 DAY) AS last7,
-          SUM(created_at >= CURDATE() - INTERVAL 30 DAY) AS last30,
-          COUNT(*) AS total
-        FROM relocation_leads
-      `);
-      stats = s;
-    }
+if (colSet.has('city_to')) {
+  const [rows] = await pool.query(`
+    SELECT city_to AS destination, COUNT(*) AS cnt
+    FROM relocation_leads
+    WHERE city_to IS NOT NULL AND city_to <> ''
+    GROUP BY city_to
+    ORDER BY cnt DESC
+    LIMIT 10
+  `);
+  topDestinations = rows;
+}
 
-    if (colSet.has('destination_state')) {
+    if (colSet.has('city_to')) {
       const [rows] = await pool.query(`
-        SELECT destination_state AS state, COUNT(*) AS cnt
+        SELECT city_to AS state, COUNT(*) AS cnt
         FROM relocation_leads
-        WHERE destination_state IS NOT NULL AND destination_state <> ''
-        GROUP BY destination_state
+        WHERE city_to IS NOT NULL AND city_to <> ''
+        GROUP BY city_to
         ORDER BY cnt DESC
         LIMIT 10
       `);
@@ -114,10 +113,12 @@ exports.exportLeadsCsv = async (req, res) => {
       params.push(days);
     }
 
-    if (state && colSet.has('destination_state')) {
-      sql += ` AND destination_state = ?`;
-      params.push(state);
-    }
+    // City-to filter (your table has city_to)
+if (state && colSet.has('city_to')) {
+  sql += ` AND city_to = ?`;
+  params.push(state);
+}
+
 
     // Apply if your table has `type` (ENUM: individual|family|business)
 if (type && colSet.has('type')) {

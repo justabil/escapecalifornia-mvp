@@ -32,20 +32,18 @@
       padding:6px 8px; border:1px solid #c7cbe0; border-radius:6px; margin-left:6px;
     }
 
+    .two-col { display:grid; grid-template-columns: 1fr; gap:14px; }
+    @media (min-width: 900px) { .two-col { grid-template-columns: 1.6fr 1fr; } }
+
     .stats-grid { display:grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap:10px; margin-top:10px; }
     .stat { padding:10px; border:1px solid #eef0fb; border-radius:10px; background:#fbfcff; }
     .stat .label { font-size:12px; color:#666; text-transform: uppercase; letter-spacing:.02em; }
     .stat .value { font-size:20px; font-weight:700; margin-top:4px; }
 
-    .two-col { display:grid; grid-template-columns: 1fr; gap:14px; }
-    @media (min-width: 900px) {
-      .two-col { grid-template-columns: 1.6fr 1fr; }
-    }
-
     .notes-box { display:flex; gap:8px; align-items:center; }
     .notes-box input[type="text"] { width: 320px; max-width: 100%; padding:6px 8px; border:1px solid #c7cbe0; border-radius:6px; }
     .btn-small { padding:6px 10px; font-size: 0.9rem; border-radius:6px; }
-    .state-list { margin: 8px 0 0 0; padding-left: 18px; }
+    .dest-list { margin: 8px 0 0 0; padding-left: 18px; }
   </style>
 </head>
 
@@ -75,7 +73,7 @@
     <!-- A1: CSV FILTERS -->
     <div class="card">
       <h2 style="margin:0 0 6px 0; font-size:1.1rem;">Download Leads CSV</h2>
-      <div class="muted">Filter the export (optional). Leaves blank = no filter.</div>
+      <div class="muted">Optional filters. Leave blank to include everything.</div>
 
       <form method="GET" action="/admin/leads.csv" class="filters">
         <label>
@@ -84,8 +82,8 @@
         </label>
 
         <label>
-          State
-          <input type="text" name="state" placeholder="TX" maxlength="2" style="width:70px; text-transform:uppercase;">
+          City To
+          <input type="text" name="city_to" placeholder="Boise" style="width:160px;">
         </label>
 
         <label>
@@ -93,8 +91,8 @@
           <select name="type">
             <option value="">Any</option>
             <option value="individual">Individual</option>
-<option value="family">Family</option>
-<option value="business">Business</option>
+            <option value="family">Family</option>
+            <option value="business">Business</option>
           </select>
         </label>
 
@@ -102,16 +100,16 @@
       </form>
 
       <div class="muted" style="margin-top:8px;">
-        Tip: You can also hit the URL directly, e.g. <code>/admin/leads.csv?days=30</code>
+        Example: <code>/admin/leads.csv?days=30&type=business&city_to=Boise</code>
       </div>
     </div>
 
     <div class="two-col">
 
-      <!-- A4: STATS + TOP STATES -->
+      <!-- A4: STATS -->
       <div class="card">
         <h2 style="margin:0 0 6px 0; font-size:1.1rem;">Lead Metrics</h2>
-        <div class="muted">Quick snapshot based on your database.</div>
+        <div class="muted">Counts from your database.</div>
 
         <% if (stats) { %>
           <div class="stats-grid">
@@ -139,19 +137,20 @@
         <% } %>
       </div>
 
+      <!-- A4: TOP DESTINATIONS -->
       <div class="card">
-        <h2 style="margin:0 0 6px 0; font-size:1.1rem;">Top Destination States</h2>
-        <div class="muted">Top 10 by lead count.</div>
+        <h2 style="margin:0 0 6px 0; font-size:1.1rem;">Top Destination Cities</h2>
+        <div class="muted">Top 10 by lead count (from <code>city_to</code>).</div>
 
-        <% if (topStates && topStates.length) { %>
-          <ul class="state-list">
-            <% topStates.forEach(s => { %>
-              <li><strong><%= s.state %></strong> — <%= s.cnt %></li>
+        <% if (topDestinations && topDestinations.length) { %>
+          <ul class="dest-list">
+            <% topDestinations.forEach(d => { %>
+              <li><strong><%= d.destination %></strong> â€” <%= d.cnt %></li>
             <% }) %>
           </ul>
         <% } else { %>
           <div class="empty" style="margin-top:10px;">
-            No destination-state data found (or missing <code>destination_state</code> column).
+            No destination data found yet.
           </div>
         <% } %>
       </div>
@@ -167,7 +166,7 @@
         <div class="empty" style="margin-top:10px;">
           No leads found yet.
           <div class="muted" style="margin-top:6px;">
-            When someone submits the lead form, you’ll see them here.
+            When someone submits the lead form, youâ€™ll see them here.
           </div>
         </div>
       <% } else { %>
@@ -177,21 +176,23 @@
               <th class="nowrap">Created</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Phone</th>
+              <th class="nowrap">From â†’ To</th>
               <th>Type</th>
-              <th>State</th>
+              <th>Status</th>
               <th>Admin Notes</th>
             </tr>
           </thead>
           <tbody>
             <% leads.forEach(l => { %>
               <tr>
-                <td class="nowrap">
-                  <%= l.created_at ? new Date(l.created_at).toLocaleString() : '' %>
-                </td>
+                <td class="nowrap"><%= l.created_at ? new Date(l.created_at).toLocaleString() : '' %></td>
                 <td><%= l.name || '' %></td>
                 <td><%= l.email || '' %></td>
+                <td><%= l.phone || '' %></td>
+                <td class="nowrap"><%= (l.city_from || '') %> â†’ <%= (l.city_to || '') %></td>
                 <td><%= l.type || '' %></td>
-                <td><%= l.destination_state || l.state || '' %></td>
+                <td><%= l.status || '' %></td>
                 <td>
                   <form method="POST" action="/admin/leads/<%= l.id %>/notes" class="notes-box">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -199,7 +200,7 @@
                       type="text"
                       name="admin_notes"
                       value="<%= l.admin_notes || '' %>"
-                      placeholder="Add internal notes…"
+                      placeholder="Add internal notesâ€¦"
                     />
                     <button class="btn btn-small" type="submit">Save</button>
                   </form>
@@ -210,7 +211,7 @@
         </table>
 
         <div class="muted" style="margin-top:10px;">
-          Note: “Type” and “State” columns display <code>client_type</code> and <code>destination_state</code> if present; otherwise <code>type</code> / <code>state</code>.
+          Note: This table matches your <code>relocation_leads</code> columns (name, email, phone, city_from, city_to, type, status, admin_notes).
         </div>
       <% } %>
     </div>
