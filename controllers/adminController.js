@@ -74,6 +74,11 @@ exports.sendPartnerInvite = async (req, res) => {
       }
     });
 
+console.log('EMAIL_FROM env =', process.env.EMAIL_FROM);
+console.log('SMTP_USER =', process.env.SMTP_USER);
+
+
+
     await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: email,
