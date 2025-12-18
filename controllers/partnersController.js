@@ -165,7 +165,7 @@ exports.dashboard = async (req, res) => {
         rl.id,
         rl.created_at,
         rl.destination_state,
-        rl.client_type,
+        rl.type,
         rl.admin_notes
       FROM lead_shares ls
       JOIN relocation_leads rl ON rl.id = ls.lead_id
