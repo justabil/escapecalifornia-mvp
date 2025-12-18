@@ -92,8 +92,9 @@
           Type
           <select name="type">
             <option value="">Any</option>
-            <option value="residential">Residential</option>
-            <option value="business">Business</option>
+            <option value="individual">Individual</option>
+<option value="family">Family</option>
+<option value="business">Business</option>
           </select>
         </label>
 
@@ -189,7 +190,7 @@
                 </td>
                 <td><%= l.name || '' %></td>
                 <td><%= l.email || '' %></td>
-                <td><%= l.client_type || l.type || '' %></td>
+                <td><%= l.type || '' %></td>
                 <td><%= l.destination_state || l.state || '' %></td>
                 <td>
                   <form method="POST" action="/admin/leads/<%= l.id %>/notes" class="notes-box">

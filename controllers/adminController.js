@@ -119,11 +119,11 @@ exports.exportLeadsCsv = async (req, res) => {
       params.push(state);
     }
 
-    // Only apply if your table actually has client_type
-    if (type && colSet.has('client_type')) {
-      sql += ` AND client_type = ?`;
-      params.push(type);
-    }
+    // Apply if your table has `type` (ENUM: individual|family|business)
+if (type && colSet.has('type')) {
+  sql += ` AND type = ?`;
+  params.push(type);
+}
 
     sql += ` ORDER BY ${colSet.has('created_at') ? 'created_at' : 'id'} DESC LIMIT 5000`;
 
