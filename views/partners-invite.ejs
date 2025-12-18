@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Partner Signup</title></head>
+<body style="font-family:Arial;max-width:520px;margin:40px auto;">
+  <h2>Partner Signup</h2>
+  <p>Invite email: <strong><%= inviteEmail %></strong></p>
+
+  <% if (error) { %><p style="color:#b00020;"><%= error %></p><% } %>
+
+  <form method="POST" action="/partners/invite/<%= token %>">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <label>Company Name</label><br/>
+    <input name="company_name" required style="width:100%;padding:8px;"><br/><br/>
+
+    <label>Contact Name</label><br/>
+    <input name="contact_name" style="width:100%;padding:8px;"><br/><br/>
+
+    <label>Create Password (10+ chars)</label><br/>
+    <input type="password" name="password" required style="width:100%;padding:8px;"><br/><br/>
+
+    <button type="submit" style="padding:8px 12px;">Create Account</button>
+  </form>
+</body>
+</html>

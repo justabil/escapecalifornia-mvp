@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Partner Login</title></head>
+<body style="font-family:Arial;max-width:520px;margin:40px auto;">
+  <h2>Partner Login</h2>
+
+  <% if (error) { %><p style="color:#b00020;"><%= error %></p><% } %>
+
+  <form method="POST" action="/partners/login">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <label>Email</label><br/>
+    <input name="email" type="email" required style="width:100%;padding:8px;"><br/><br/>
+
+    <label>Password</label><br/>
+    <input name="password" type="password" required style="width:100%;padding:8px;"><br/><br/>
+
+    <button type="submit" style="padding:8px 12px;">Log in</button>
+  </form>
+</body>
+</html>
