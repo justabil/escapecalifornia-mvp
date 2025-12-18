@@ -45,36 +45,36 @@ exports.dashboard = async (req, res) => {
     const [cols] = await pool.query(`SHOW COLUMNS FROM relocation_leads`);
     const colSet = new Set(cols.map((c) => c.Field));
 
-    // A4: Stats + Top destination states (only if columns exist)
+    // A4: Stats (only if created_at exists)
+    let stats = null;
+    if (colSet.has('created_at')) {
+      const [[s]] = await pool.query(`
+        SELECT
+          SUM(created_at >= CURDATE()) AS today,
+          SUM(created_at >= CURDATE() - INTERVAL 7 DAY) AS last7,
+          SUM(created_at >= CURDATE() - INTERVAL 30 DAY) AS last30,
+          COUNT(*) AS total
+        FROM relocation_leads
+      `);
+      stats = s;
+    }
+
+    // A4: Top Destination Cities (from city_to)
     let topDestinations = [];
-
-if (colSet.has('city_to')) {
-  const [rows] = await pool.query(`
-    SELECT city_to AS destination, COUNT(*) AS cnt
-    FROM relocation_leads
-    WHERE city_to IS NOT NULL AND city_to <> ''
-    GROUP BY city_to
-    ORDER BY cnt DESC
-    LIMIT 10
-  `);
-  topDestinations = rows;
-}
-
     if (colSet.has('city_to')) {
       const [rows] = await pool.query(`
-        SELECT city_to AS state, COUNT(*) AS cnt
+        SELECT city_to AS destination, COUNT(*) AS cnt
         FROM relocation_leads
         WHERE city_to IS NOT NULL AND city_to <> ''
         GROUP BY city_to
         ORDER BY cnt DESC
         LIMIT 10
       `);
-      topStates = rows;
+      topDestinations = rows;
     }
 
     // Leads list (safe ORDER BY depending on schema)
     const orderCol = colSet.has('created_at') ? 'created_at' : 'id';
-
     const [leads] = await pool.query(
       `SELECT * FROM relocation_leads ORDER BY ${orderCol} DESC LIMIT 200`
     );
@@ -82,7 +82,7 @@ if (colSet.has('city_to')) {
     return res.render('admin_dashboard', {
       leads,
       stats,
-      topStates,
+      topDestinations,
       csrfToken: res.locals.csrfToken
     });
   } catch (err) {
@@ -90,6 +90,7 @@ if (colSet.has('city_to')) {
     return res.status(500).send('Server error loading admin dashboard');
   }
 };
+
 
 /**
  * GET /admin/leads.csv
