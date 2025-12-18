@@ -1,5 +1,7 @@
 // controllers/adminController.js
 const pool = require('../db/pool');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 /**
  * GET /admin/login
@@ -36,12 +38,68 @@ exports.logout = (req, res) => {
 };
 
 /**
+ * POST /admin/partner-invite
+ * Creates a new invite token and emails the partner an invite link
+ */
+exports.sendPartnerInvite = async (req, res) => {
+  try {
+    const email = String(req.body.email || '').trim().toLowerCase();
+    if (!email) return res.status(400).send('Missing email');
+
+    // Generate secure token (64 hex chars)
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Invite expiry (optional env var; default 14 days)
+    const days = Number(process.env.PARTNER_INVITE_DAYS || 14);
+
+    // Store invite
+    await pool.query(
+      `INSERT INTO partner_invites (token, email, expires_at)
+       VALUES (?, ?, NOW() + INTERVAL ? DAY)`,
+      [token, email, days]
+    );
+
+    // Build invite URL
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const inviteUrl = `${baseUrl}/partners/invite/${token}`;
+
+    // Reuse your existing SMTP config (.env)
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: 'EscapeCalifornia Partner Invitation',
+      text:
+`You’ve been invited to join EscapeCalifornia as a partner.
+
+Create your partner account here:
+${inviteUrl}
+
+This link expires in ${days} days.`
+    });
+
+    return res.redirect('/admin');
+  } catch (err) {
+    console.error('sendPartnerInvite error:', err);
+    return res.status(500).send('Server error sending invite');
+  }
+};
+
+/**
  * GET /admin
- * Admin dashboard: shows leads + stats + top states
+ * Admin dashboard: shows leads + stats + top destinations
  */
 exports.dashboard = async (req, res) => {
   try {
-    // Detect columns so we don't break if schema differs
     const [cols] = await pool.query(`SHOW COLUMNS FROM relocation_leads`);
     const colSet = new Set(cols.map((c) => c.Field));
 
@@ -73,7 +131,7 @@ exports.dashboard = async (req, res) => {
       topDestinations = rows;
     }
 
-    // Leads list (safe ORDER BY depending on schema)
+    // Leads list
     const orderCol = colSet.has('created_at') ? 'created_at' : 'id';
     const [leads] = await pool.query(
       `SELECT * FROM relocation_leads ORDER BY ${orderCol} DESC LIMIT 200`
@@ -91,11 +149,10 @@ exports.dashboard = async (req, res) => {
   }
 };
 
-
 /**
  * GET /admin/leads.csv
  * A1: CSV Export with optional filters:
- *   ?days=30&state=TX&type=business
+ *   ?days=30&city_to=Boise&type=business
  */
 exports.exportLeadsCsv = async (req, res) => {
   try {
@@ -103,7 +160,7 @@ exports.exportLeadsCsv = async (req, res) => {
     const colSet = new Set(cols.map((c) => c.Field));
 
     const days = Number(req.query.days || 0);
-    const state = (req.query.state || '').trim();
+    const cityTo = (req.query.city_to || '').trim();
     const type = (req.query.type || '').trim();
 
     let sql = `SELECT * FROM relocation_leads WHERE 1=1`;
@@ -114,18 +171,15 @@ exports.exportLeadsCsv = async (req, res) => {
       params.push(days);
     }
 
-    // City-to filter (your table has city_to)
-if (state && colSet.has('city_to')) {
-  sql += ` AND city_to = ?`;
-  params.push(state);
-}
+    if (cityTo && colSet.has('city_to')) {
+      sql += ` AND city_to = ?`;
+      params.push(cityTo);
+    }
 
-
-    // Apply if your table has `type` (ENUM: individual|family|business)
-if (type && colSet.has('type')) {
-  sql += ` AND type = ?`;
-  params.push(type);
-}
+    if (type && colSet.has('type')) {
+      sql += ` AND type = ?`;
+      params.push(type);
+    }
 
     sql += ` ORDER BY ${colSet.has('created_at') ? 'created_at' : 'id'} DESC LIMIT 5000`;
 
@@ -158,7 +212,7 @@ if (type && colSet.has('type')) {
 
 /**
  * POST /admin/leads/:id/notes
- * A2: Update admin notes (your column is admin_notes)
+ * A2: Update admin notes (column is admin_notes)
  */
 exports.updateLeadNotes = async (req, res) => {
   try {
@@ -167,14 +221,17 @@ exports.updateLeadNotes = async (req, res) => {
 
     if (!Number.isFinite(id)) return res.status(400).send('Bad id');
 
-    // Optional safety: only update if the column exists
     const [cols] = await pool.query(`SHOW COLUMNS FROM relocation_leads`);
     const colSet = new Set(cols.map((c) => c.Field));
     if (!colSet.has('admin_notes')) {
       return res.status(500).send('Table missing admin_notes column');
     }
 
-    await pool.query(`UPDATE relocation_leads SET admin_notes = ? WHERE id = ?`, [adminNotes, id]);
+    await pool.query(
+      `UPDATE relocation_leads SET admin_notes = ? WHERE id = ?`,
+      [adminNotes, id]
+    );
+
     return res.redirect('/admin');
   } catch (err) {
     console.error('Update admin_notes error:', err);
